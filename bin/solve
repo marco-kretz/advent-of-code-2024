@@ -1,0 +1,49 @@
+#!/usr/bin/env php
+<?php
+// application.php
+
+require __DIR__.'/../vendor/autoload.php';
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\SingleCommandApplication;
+use Symfony\Component\Stopwatch\Stopwatch;
+
+(new SingleCommandApplication())
+    ->addArgument('day', InputArgument::REQUIRED, 'The name of the day you want to run. E.g. "day1"')
+    ->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $day = $input->getArgument('day');
+        $dayUcFirst = ucfirst($day);
+
+        // Check if class for the day exists and include it
+        if (file_exists(__DIR__."/../src/$dayUcFirst.php")) {
+            include_once __DIR__."/../src/$dayUcFirst.php";
+        } else {
+            $output->writeln('Invalid day');
+            return Command::INVALID;
+        }
+
+        // Check if class exists after including it
+        $class = "MarcoKretz\\AdventOfCode2024\\$dayUcFirst";
+        if (!class_exists($class)) {
+            $output->writeln("Can not find class: $class");
+            return Command::FAILURE;
+        }
+        $task = new $class(__DIR__."/../inputs/$day.txt");
+
+        // Start timer
+        $stopwatch = new Stopwatch();
+        $stopwatch->start('task');
+
+        // Run the task
+        $output->writeln($task->solve());
+
+        // Stop timer and print result
+        $event = $stopwatch->stop('task');
+        $output->writeln("\nFinished in: " . ($event->getDuration() / 1000) . ' seconds.');
+
+        return Command::SUCCESS;
+    })
+    ->run();
