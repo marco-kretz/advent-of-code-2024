@@ -4,7 +4,7 @@ These are my solutions to the AoC 2024 in PHP.
 
 ## Prequesites
 
--   PHP 8.4
+-   PHP 8.3+
 -   Composer
 
 ## Run
