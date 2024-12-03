@@ -32,7 +32,7 @@ class Day2 extends AbstractTask
         $unsafeCount = 0;
         $totalReports = count($parsedInput);
 
-        // Count all report which are not valid
+        // Count all reports which are not valid
         foreach ($parsedInput as $report) {
             if (!$this->isReportValid($report)) {
                 $unsafeCount++;
@@ -50,7 +50,7 @@ class Day2 extends AbstractTask
         $unsafeCount = 0;
         $totalReports = count($parsedInput);
 
-        // Count all report which are not valid, even after dampening one level
+        // Count all reports which are not valid, even after dampening one level
         foreach ($parsedInput as $report) {
             if (!$this->isReportValid($report) && $this->dampenReport($report) === null) {
                 $unsafeCount++;
