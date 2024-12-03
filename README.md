@@ -1,6 +1,7 @@
-# Advent of Code 2024
+# 🌟 Advent of Code 2024 🌟
 
-These are my solutions to the AoC 2024 in PHP.
+These are my solutions to the [Advent of Code 2024](https://adventofcode.com/2024) in modern PHP.<br>
+All code is written without any assistance by a LLM (where would be the fun then, right?).
 
 ## Prequesites
 
