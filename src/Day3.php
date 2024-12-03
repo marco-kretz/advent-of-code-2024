@@ -35,7 +35,7 @@ class Day3 extends AbstractTask
             }
 
             // Extract both numbers from the op string
-            $factors = explode(',', trim(substr($op, 3), "()"));
+            $factors = array_map('intval', explode(',', trim(substr($op, 3), "()")));
 
             // Add the mutltiplication to the final sum
             $sum += $factors[0] * $factors[1];
@@ -70,7 +70,7 @@ class Day3 extends AbstractTask
             }
 
             // Extract both numbers from the op string
-            $factors = explode(',', trim(substr($op, 3), "()"));
+            $factors = array_map('intval', explode(',', trim(substr($op, 3), "()")));
 
             // Add the mutltiplication to the final sum
             $sum += $factors[0] * $factors[1];
