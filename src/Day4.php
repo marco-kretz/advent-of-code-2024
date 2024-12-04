@@ -43,7 +43,7 @@ class Day4 extends AbstractTask
                     continue;
                 }
 
-                $matches = array_merge($matches, $this->search2d($needle, $parsedInput, $x, $y));
+                array_push($matches, ...$this->search2d($needle, $parsedInput, $x, $y));
             }
         }
 
