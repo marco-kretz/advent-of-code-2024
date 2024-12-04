@@ -48,6 +48,7 @@ class Day4 extends AbstractTask
             }
 
         }
+
         return (string) $matches;
     }
 
@@ -71,13 +72,24 @@ class Day4 extends AbstractTask
         while (($line = fgets($handle)) !== false) {
             // Remove all linebreaks
             $line = str_replace(["\r\n", "\n"], '', $line);
-            // Split string into array of chars (not actually needed but it more clear)
+            // Split string into array of chars (not actually needed, but it makes it more clear)
             $result[] = str_split($line);
         }
 
         return $result;
     }
 
+    /**
+     * Check the occurrences of a needle from a given starting point within a 2d-array (matrix).
+     * The starting point should be equal to the first character of the needle.
+     *
+     * @param string $needle The word to search for
+     * @param array $haystack The matrix to search in
+     * @param int $fromX Starting X-coord
+     * @param int $fromY Starting y-coord
+     *
+     * @return int The number of occurrences
+     */
     private function search2d(string $needle, array $haystack, int $fromX, int $fromY): int
     {
         $needleLength = strlen($needle);
