@@ -2,7 +2,6 @@
 
 namespace MarcoKretz\AdventOfCode2024;
 
-use Exception;
 use RuntimeException;
 
 /**
@@ -141,7 +140,7 @@ class Day4 extends AbstractTask
      * @param int $fromX Starting X-coord
      * @param int $fromY Starting y-coord
      *
-     * @return array A list of all occurrences with coords + direction
+     * @return array A list of all occurrences with start coords + direction
      */
     private function search2d(string $needle, array $haystack, int $fromX, int $fromY): array
     {
@@ -166,6 +165,7 @@ class Day4 extends AbstractTask
                     break;
                 }
 
+                // Calculate new x/y coords
                 $x = match ($direction) {
                     'ur', 'r', 'dr' => $x + 1,
                     'ul', 'l', 'dl' => $x - 1,
