@@ -70,7 +70,7 @@ class Day4 extends AbstractTask
                 }
 
                 // We only need the diagonal matches now "X"-MAS lol.
-                $matches = array_merge($matches, $this->search2d($needle, $parsedInput, $x, $y, ['ur', 'dr', 'dl', 'ul']));
+                array_push($matches, ...$this->search2d($needle, $parsedInput, $x, $y, ['ur', 'dr', 'dl', 'ul']));
             }
         }
 
@@ -93,11 +93,8 @@ class Day4 extends AbstractTask
             };
 
             // Count how many pairs share the same middle coord
-            if (!isset($matchCache["$xMid/$yMid"])) {
-                $matchCache["$xMid/$yMid"] = 1;
-            } else {
-                $matchCache["$xMid/$yMid"]++;
-            }
+            $key = "$xMid,$yMid";
+            $matchCache[$key] = ($matchCache[$key] ?? 0) + 1;
         }
 
         // All matches with at least two of the same middle coords are valid
