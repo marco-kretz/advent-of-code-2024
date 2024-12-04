@@ -69,7 +69,8 @@ class Day4 extends AbstractTask
                     continue;
                 }
 
-                $matches = array_merge($matches, $this->search2d($needle, $parsedInput, $x, $y));
+                // We only need the diagonal matches now "X"-MAS lol.
+                $matches = array_merge($matches, $this->search2d($needle, $parsedInput, $x, $y, ['ur', 'dr', 'dl', 'ul']));
             }
         }
 
@@ -77,11 +78,6 @@ class Day4 extends AbstractTask
         // We just just in/decrease by 1 because the needle is given with 3 chars.
         $matchCache = [];
         foreach ($matches as $match) {
-            // Skip non-diagonal matches
-            if (in_array($match['d'], ['r', 'd', 'l', 'u'])) {
-                continue;
-            }
-
             // Calc middle x coord
             $xMid = match($match['d']) {
                 'ur', 'r', 'dr' => $match['x'] + 1,
@@ -139,13 +135,13 @@ class Day4 extends AbstractTask
      * @param array $haystack The matrix to search in
      * @param int $fromX Starting X-coord
      * @param int $fromY Starting y-coord
+     * @param array $directions The directions to search for occurrences
      *
      * @return array A list of all occurrences with start coords + direction
      */
-    private function search2d(string $needle, array $haystack, int $fromX, int $fromY): array
+    private function search2d(string $needle, array $haystack, int $fromX, int $fromY, array $directions = ['u', 'ur', 'r', 'dr', 'd', 'dl', 'l', 'ul']): array
     {
         $needleLength = strlen($needle);
-        $directions = ['u', 'ur', 'r', 'dr', 'd', 'dl', 'l', 'ul'];
         $result = [];
 
         foreach ($directions as $direction) {
