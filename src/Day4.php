@@ -104,7 +104,7 @@ class Day4 extends AbstractTask
             }
         }
 
-        // All matches with at least to of the same middle coords are valid
+        // All matches with at least two of the same middle coords are valid
         $validMatches = array_filter($matchCache, static function (int $value): bool {
             return $value >= 2;
         });
