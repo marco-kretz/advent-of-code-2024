@@ -166,37 +166,16 @@ class Day4 extends AbstractTask
                     break;
                 }
 
-                // Set new coords based on direction
-                switch ($direction) {
-                    case 'u':
-                        $y -= 1;
-                        break;
-                    case 'ur':
-                        $x += 1;
-                        $y -= 1;
-                        break;
-                    case 'r':
-                        $x += 1;
-                        break;
-                    case 'dr':
-                        $x += 1;
-                        $y += 1;
-                        break;
-                    case 'd':
-                        $y += 1;
-                        break;
-                    case 'dl':
-                        $x -= 1;
-                        $y += 1;
-                        break;
-                    case 'l':
-                        $x -= 1;
-                        break;
-                    case 'ul':
-                        $x -= 1;
-                        $y -= 1;
-                        break;
-                }
+                $x = match ($direction) {
+                    'ur', 'r', 'dr' => $x + 1,
+                    'ul', 'l', 'dl' => $x - 1,
+                    default => $x,
+                };
+                $y = match ($direction) {
+                    'dr', 'd', 'dl' => $y + 1,
+                    'ur', 'u', 'ul' => $y - 1,
+                    default => $y,
+                };
             }
 
             // If we found a full match, increase match counter
