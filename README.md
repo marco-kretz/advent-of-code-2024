@@ -7,8 +7,8 @@ I don't try to write the most efficient code, but the most readable so that some
 
 ## Prequesites
 
--   PHP 8.3+
--   Composer
+- PHP 8.3+
+- Composer
 
 ## Run
 
