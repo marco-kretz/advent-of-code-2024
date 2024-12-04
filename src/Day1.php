@@ -11,7 +11,8 @@ use RuntimeException;
  */
 class Day1 extends AbstractTask
 {
-    public function solve(): string {
+    public function solve(): string
+    {
         $parsedInput = $this->parseInput();
 
         $resultPartOne = $this->solvePartOne($parsedInput);
