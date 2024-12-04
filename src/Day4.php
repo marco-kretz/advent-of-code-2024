@@ -33,7 +33,7 @@ class Day4 extends AbstractTask
         $needle = 'XMAS';
         $rows = count($parsedInput);
         $cols = count($parsedInput[0]);
-        $matches = 0;
+        $matches = [];
 
         for ($y = 0; $y < $rows; $y++) {
             for ($x = 0; $x < $cols; $x++) {
@@ -44,12 +44,11 @@ class Day4 extends AbstractTask
                     continue;
                 }
 
-                $matches += $this->search2d($needle, $parsedInput, $x, $y);
+                $matches = array_merge($matches, $this->search2d($needle, $parsedInput, $x, $y));
             }
-
         }
 
-        return (string) $matches;
+        return (string) count($matches);
     }
 
     /**
@@ -57,7 +56,61 @@ class Day4 extends AbstractTask
      */
     public function solvePartTwo(array $parsedInput): string
     {
-        return '';
+        $needle = 'MAS';
+        $rows = count($parsedInput);
+        $cols = count($parsedInput[0]);
+        $matches = [];
+
+        for ($y = 0; $y < $rows; $y++) {
+            for ($x = 0; $x < $cols; $x++) {
+                $currentChar = $parsedInput[$y][$x];
+
+                // Skip any non 'M's
+                if ($currentChar !== $needle[0]) {
+                    continue;
+                }
+
+                $matches = array_merge($matches, $this->search2d($needle, $parsedInput, $x, $y));
+            }
+        }
+
+        // Find the pairs where the middle coords are equal.
+        // We just just in/decrease by 1 because the needle is given with 3 chars.
+        $matchCache = [];
+        foreach ($matches as $match) {
+            // Skip non-diagonal matches
+            if (in_array($match['d'], ['r', 'd', 'l', 'u'])) {
+                continue;
+            }
+
+            // Calc middle x coord
+            $xMid = match($match['d']) {
+                'ur', 'r', 'dr' => $match['x'] + 1,
+                'ul', 'l', 'dl' => $match['x'] - 1,
+                default => $match['x'],
+            };
+
+            // Calc middle y coord
+            $yMid = match($match['d']) {
+                'dr', 'd', 'dl' => $match['y'] + 1,
+                'ur', 'u', 'ul' => $match['y'] - 1,
+                default => $match['y'],
+            };
+
+            // Count how many pairs share the same middle coord
+            if (!isset($matchCache["$xMid/$yMid"])) {
+                $matchCache["$xMid/$yMid"] = 1;
+            } else {
+                $matchCache["$xMid/$yMid"]++;
+            }
+        }
+
+        // All matches with at least to of the same middle coords are valid
+        $validMatches = array_filter($matchCache, static function (int $value): bool {
+            return $value >= 2;
+        });
+
+        return (string) count($validMatches);
     }
 
     private function parseInput(): array
@@ -88,13 +141,13 @@ class Day4 extends AbstractTask
      * @param int $fromX Starting X-coord
      * @param int $fromY Starting y-coord
      *
-     * @return int The number of occurrences
+     * @return array A list of all occurrences with coords + direction
      */
-    private function search2d(string $needle, array $haystack, int $fromX, int $fromY): int
+    private function search2d(string $needle, array $haystack, int $fromX, int $fromY): array
     {
         $needleLength = strlen($needle);
         $directions = ['u', 'ur', 'r', 'dr', 'd', 'dl', 'l', 'ul'];
-        $matchCount = 0;
+        $result = [];
 
         foreach ($directions as $direction) {
             $x = $fromX;
@@ -148,10 +201,14 @@ class Day4 extends AbstractTask
 
             // If we found a full match, increase match counter
             if ($currentMatch === $needle) {
-                $matchCount++;
+                $result[] = [
+                    'x' => $fromX,
+                    'y' => $fromY,
+                    'd' => $direction,
+                ];
             }
         }
 
-        return $matchCount;
+        return $result;
     }
 }
