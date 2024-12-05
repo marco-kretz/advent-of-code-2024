@@ -43,32 +43,14 @@ class Day5 extends AbstractTask
             // Iterate over every page in the update
             for ($i = 0; $i < $updateLength; $i++) {
                 $page = $update[$i];
-
-                // Filter all rules which can be applied to the current page/update
-                $rulesForPage = array_filter($rules, function (array $currentRule) use ($page, $update): bool {
-                    // If the current page is the first number of the rule and the second number exists in the update
-                    if ($currentRule[0] === $page && in_array($currentRule[1], $update)) {
-                        return true;
+                $needToBeBefore = $rules[$page];
+                foreach ($needToBeBefore as $pageNumber) {
+                    $positionInUpdate = array_search($pageNumber, $update);
+                    if ($positionInUpdate === false) {
+                        continue;
                     }
 
-                    // If the current page is the second number of the rule and the first number exists in the update
-                    if ($currentRule[1] === $page && in_array($currentRule[0], $update)) {
-                        return true;
-                    }
-
-                    return false;
-                });
-
-                foreach ($rulesForPage as $ruleToCheck) {
-                    if ($page === $ruleToCheck[0]) {
-                        $positionA = $i;
-                        $positionB = $pagePositions[$ruleToCheck[1]] ?? null;
-                    } else {
-                        $positionA = $pagePositions[$ruleToCheck[0]] ?? null;
-                        $positionB = $i;
-                    }
-
-                    if ($positionA !== null && $positionB !== null && $positionA > $positionB) {
+                    if ($positionInUpdate < $i) {
                         $isValid = false;
                         break;
                     }
@@ -121,6 +103,34 @@ class Day5 extends AbstractTask
             }
         }
 
-        return [$rules, $updates];
+        return [$this->buildRulesMap($rules), $updates];
+    }
+
+    /**
+     * Here we build a rule map which holds all numbers for every page-number which needs to come after it;
+     * This makes the rule lookup a lot faster!
+     *
+     * 17 => 12,67,56
+     * 18 => 13,16,...
+     *
+     */
+    private function buildRulesMap(array $rules): array
+    {
+        $rulesMap = [];
+        foreach ($rules as $rule) {
+            $first = $rule[0];
+            $second = $rule[1];
+
+            if (!isset($rulesMap[$first])) {
+                $rulesMap[$first] = [$second];
+                continue;
+            }
+
+            if (!in_array($second, $rulesMap[$first])) {
+                $rulesMap[$first][] = $second;
+            }
+        }
+
+        return $rulesMap;
     }
 }
