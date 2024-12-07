@@ -2,6 +2,7 @@
 
 namespace MarcoKretz\AdventOfCode2024;
 
+use Exception;
 use RuntimeException;
 
 /**
@@ -12,10 +13,15 @@ use RuntimeException;
 class Day6 extends AbstractTask
 {
     private const OBSTRUCTION = '#';
+    private const LOOPER = 'O';
     private const GUARD_UP = '^';
     private const GUARD_DOWN = 'v';
     private const GUARD_RIGHT = '>';
     private const GUARD_LEFT = '<';
+    private const UNVISITED = '.';
+    private const UP_DOWN = '|';
+    private const LEFT_RIGHT = '-';
+    private const CROSS = '+';
 
     public function solve(): string
     {
@@ -94,9 +100,38 @@ class Day6 extends AbstractTask
     /**
      * --- Part Two ---
      */
-    public function solvePartTwo(array $parsedInput): string
+    public function solvePartTwo(array $map): string
     {
-        return '';
+        // Mark the original pathing of the guard in the map
+        $originalPathingMap = $this->simulateGuardPath($map, true);
+        if ($originalPathingMap === null) {
+            print("Oops, source map has a loop!");
+            exit;
+        }
+
+        $successfulLooperCount = 0;
+
+        $rows = count($map);
+        $cols = count($map[0]);
+        for ($y = 0; $y < $rows; $y++) {
+            for ($x = 0; $x < $cols; $x++) {
+                // Filter out non-possible looper positions
+                if (!in_array($originalPathingMap[$y][$x], [self::LEFT_RIGHT, self::UP_DOWN, self::CROSS])) {
+                    continue;
+                }
+
+                // Put looper at the current position
+                $mapWithSingleLooper = $map;
+                $mapWithSingleLooper[$y][$x] = self::LOOPER;
+
+                // Simulate walkthrough and count loops
+                if ($this->simulateGuardPath($mapWithSingleLooper) === null) {
+                    $successfulLooperCount++;
+                }
+            }
+        }
+
+        return (string) $successfulLooperCount;
     }
 
     private function parseInput(): array
@@ -137,5 +172,98 @@ class Day6 extends AbstractTask
         }
 
         return null;
+    }
+
+    /**
+     * Simulate the guard's walk through the map and mark each cell accordingly.
+     * Returns null, if the guard is stuck in a loop.
+     */
+    private function simulateGuardPath(array $map, bool $markMap = false): ?array
+    {
+        $guardPosition = $this->getGuardPosition($map);
+        if ($guardPosition === null) {
+            throw new RuntimeException('No guard found on map!');
+        }
+
+        // Initial state
+        [$x, $y, $d] = $guardPosition;
+
+        // Used for loop detection
+        $turnHistory = [];
+
+        while (true) {
+            // Calculate deltas for x/y
+            $dx = match($d) {
+                self::GUARD_LEFT => -1,
+                self::GUARD_RIGHT => 1,
+                default => 0,
+            };
+            $dy = match($d) {
+                self::GUARD_UP => -1,
+                self::GUARD_DOWN => 1,
+                default => 0,
+            };
+
+            // Calculate new coords
+            $newX = $x + $dx;
+            $newY = $y + $dy;
+
+            // Put markings on the map
+            if ($markMap) {
+                if ($x === $newX) {
+                    if ($map[$y][$x] === self::UNVISITED) {
+                        $map[$y][$x] = self::UP_DOWN;
+                    } elseif ($map[$y][$x] === self::LEFT_RIGHT) {
+                        $map[$y][$x] = self::CROSS;
+                    }
+                }
+
+                if ($y === $newY) {
+                    if ($map[$y][$x] === self::UNVISITED) {
+                        $map[$y][$x] = self::LEFT_RIGHT;
+                    } elseif ($map[$y][$x] === self::UP_DOWN) {
+                        $map[$y][$x] = self::CROSS;
+                    }
+                }
+            }
+
+            // Out of map? Exit.
+            if (!isset($map[$newY][$newX])) {
+                break;
+            }
+
+            // If we hit any obstacle...
+            if ($map[$newY][$newX] === self::OBSTRUCTION || $map[$newY][$newX] === self::LOOPER) {
+                // Turn right 90 degrees
+                $d = match($d) {
+                    self::GUARD_DOWN => self::GUARD_LEFT,
+                    self::GUARD_LEFT => self::GUARD_UP,
+                    self::GUARD_UP => self::GUARD_RIGHT,
+                    self::GUARD_RIGHT => self::GUARD_DOWN,
+                };
+
+                // Detect if we have already been here -> LOOP
+                if (isset($turnHistory["$x/$y/$d"])) {
+                    return null;
+                }
+
+                // Remember the points we already turned at
+                $turnHistory["$x/$y/$d"] = true;
+
+                // Mark turn point on the map
+                if ($markMap) {
+                    $map[$y][$x] = self::CROSS;
+                }
+
+                // Don't change position
+                continue;
+            }
+
+            // Go to the new position
+            $x = $newX;
+            $y = $newY;
+        }
+
+        return $map;
     }
 }
