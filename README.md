@@ -19,9 +19,7 @@ $ composer install
 $ php bin/solve day1
 ```
 
-## Perfomance
-
-To simplify things I just measure the whole day's solution in one (Part One + Two).
+## Performance
 
 | Day | Time Part 1 | Time Part 2 | Memory (peak) |
 | --- | ----------- | ----------- | ------------- |
