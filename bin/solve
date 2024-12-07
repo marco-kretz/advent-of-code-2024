@@ -51,7 +51,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
         $stopwatch->start('part2');
         $result = $task->solvePartTwo($parsedInput);
         $partTwoEvent = $stopwatch->stop('part2');
-        $output->writeln('Solution for Part 2' . $result);
+        $output->writeln('Solution for Part 2: ' . $result);
         $output->writeln('Processed in: ' . $partTwoEvent->getDuration() . ' ms.');
 
         $output->writeln('');
