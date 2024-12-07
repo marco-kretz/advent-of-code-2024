@@ -8,5 +8,8 @@ abstract class AbstractTask
     {
     }
 
+    abstract public function parseInput(): array;
     abstract public function solve(): string;
+    abstract public function solvePartOne(array $input): string;
+    abstract public function solvePartTwo(array $input): string;
 }

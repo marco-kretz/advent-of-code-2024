@@ -23,12 +23,12 @@ $ php bin/solve day1
 
 To simplify things I just measure the whole day's solution in one (Part One + Two).
 
-| Day | Time   | Memory (peak) |
-| --- | ------ | ------------- |
-| 1   | 0.007s | 1.84mb        |
-| 2   | 0.008s | 1.98mb        |
-| 3   | 0.007s | 1.81mb        |
-| 4   | 0.016s | 6.07mb        |
-| 5   | 0.003s | 2.19mb        |
-| 6   | 2.623s | 4.44mb        |
-| 7   | 48.45s | 2.33mb        |
+| Day | Time Part 1 | Time Part 2 | Memory (peak) |
+| --- | ----------- | ----------- | ------------- |
+| 1   | <0.001s     | 0.007s      | 1.84mb        |
+| 2   | <0.001s     | 0.001s      | 1.98mb        |
+| 3   | <0.001s     | <0.001s     | 1.81mb        |
+| 4   | 0.007s      | 0.008s      | 6.07mb        |
+| 5   | 0.001s      | 0.001s      | 2.19mb        |
+| 6   | 0.001s      | 2.619s      | 4.44mb        |
+| 7   | 0.937s      | 46.60s      | 2.33mb        |

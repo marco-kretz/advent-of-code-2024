@@ -67,7 +67,7 @@ class Day1 extends AbstractTask
         return (string) $score;
     }
 
-    private function parseInput(): array
+    public function parseInput(): array
     {
         $handle = fopen($this->input, 'r');
         if (!$handle) {

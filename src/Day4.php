@@ -105,7 +105,7 @@ class Day4 extends AbstractTask
         return (string) count($validMatches);
     }
 
-    private function parseInput(): array
+    public function parseInput(): array
     {
         // Read whole file as string
         $handle = fopen($this->input, 'r');

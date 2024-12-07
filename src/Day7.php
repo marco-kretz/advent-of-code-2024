@@ -101,7 +101,7 @@ class Day7 extends AbstractTask
         return (string) $totalResult;
     }
 
-    private function parseInput(): array
+    public function parseInput(): array
     {
         // Read whole file as string
         $handle = fopen($this->input, 'r');
@@ -132,7 +132,8 @@ class Day7 extends AbstractTask
             return;
         }
 
-        for ($i = 0; $i < count($elements); $i++) {
+        $elementCount = count($elements);
+        for ($i = 0; $i < $elementCount; $i++) {
             $current[] = $elements[$i];
             yield from $this->combine($elements, $length, $current);
             array_pop($current);
