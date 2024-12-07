@@ -2,13 +2,12 @@
 
 namespace MarcoKretz\AdventOfCode2024;
 
-use Exception;
 use RuntimeException;
 
 /**
  * Advent of Code - Day 6: Guard Gallivant
  *
- * @url https://adventofcode.com/2024/day/5
+ * @url https://adventofcode.com/2024/day/6
  */
 class Day6 extends AbstractTask
 {
