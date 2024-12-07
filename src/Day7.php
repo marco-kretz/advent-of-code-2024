@@ -28,7 +28,7 @@ class Day7 extends AbstractTask
             $operatorCount = count($operands) - 1;
 
             // Create all combinations of operands
-            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY], $operatorCount, []) as $operators) {
+            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY], $operatorCount) as $operators) {
                 // Test equation
                 if ($this->evaluate($operands, $operators, $result)) {
                     $totalResult += $result;
@@ -52,11 +52,11 @@ class Day7 extends AbstractTask
             $operatorCount = count($operands) - 1;
 
             // Create all combinations of operands
-            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY, self::OP_CONCAT], $operatorCount, []) as $operators) {
+            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY, self::OP_CONCAT], $operatorCount) as $operators) {
                 // Test equation
                 if ($this->evaluate($operands, $operators, $result)) {
                     $totalResult += $result;
-                    continue 2;
+                    break;
                 }
             }
         }
@@ -66,29 +66,19 @@ class Day7 extends AbstractTask
 
     public function parseInput(): array
     {
-        // Read whole file as string
-        $handle = fopen($this->input, 'r');
-        if (!$handle) {
-            throw new RuntimeException('File input not found!');
-        }
-
         $result = [];
-        while (($line = fgets($handle)) !== false) {
-            if (empty($line)) {
-                continue;
-            }
-
-            $splitted = explode(':', $line);
+        foreach (file($this->input, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+            [$res, $ops] = explode(':', $line);
             $result[] = [
-                'e' => array_map('intval', explode(' ', trim($splitted[1]))),
-                'r' => (int) $splitted[0],
+                'e' => array_map('intval', explode(' ', trim($ops))),
+                'r' => (int) $res,
             ];
         }
 
         return $result;
     }
 
-    private function combine(array $elements, int $length, array $current): Iterator
+    private function combine(array $elements, int $length, array $current = []): Iterator
     {
         if (count($current) === $length) {
             yield $current;
@@ -96,8 +86,8 @@ class Day7 extends AbstractTask
         }
 
         $elementCount = count($elements);
-        for ($i = 0; $i < $elementCount; $i++) {
-            $current[] = $elements[$i];
+        foreach ($elements as $element) {
+            $current[] = $element;
             yield from $this->combine($elements, $length, $current);
             array_pop($current);
         }
