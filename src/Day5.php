@@ -37,9 +37,6 @@ class Day5 extends AbstractTask
             $isValid = true;
             $updateLength = count($update);
 
-            // Create positioning array for all pages in the update
-            $pagePositions = array_flip($update);
-
             // Iterate over every page in the update
             for ($i = 0; $i < $updateLength; $i++) {
                 $page = $update[$i];
@@ -75,7 +72,55 @@ class Day5 extends AbstractTask
      */
     public function solvePartTwo(array $parsedInput): string
     {
-        return '';
+        [$rules, $updates] = $parsedInput;
+        $middleNumberSum = 0;
+
+        // Iterate over all updates
+        foreach ($updates as $update) {
+            $isValid = true;
+            $updateLength = count($update);
+
+            // Iterate over every page in the update
+            for ($i = 0; $i < $updateLength; $i++) {
+                $page = $update[$i];
+                $needToBeBefore = $rules[$page];
+                foreach ($needToBeBefore as $pageNumber) {
+                    $positionInUpdate = array_search($pageNumber, $update);
+                    if ($positionInUpdate === false) {
+                        continue;
+                    }
+
+                    if ($positionInUpdate < $i) {
+                        $isValid = false;
+                        break;
+                    }
+                }
+
+                if (!$isValid) {
+                    break;
+                }
+            }
+
+            if (!$isValid) {
+                // Correct the order
+                usort($update, function (int $a, int $b) use ($rules) {
+                    if (isset($rules[$a]) && in_array($b, $rules[$a])) {
+                        return -1;
+                    }
+
+                    if (isset($rules[$b]) && in_array($a, $rules[$b])) {
+                        return 1;
+                    }
+
+                    return 0;
+                });
+
+                // Add middle update value
+                $middleNumberSum += $update[floor((count($update) - 1) / 2)];
+            }
+        }
+
+        return (string) $middleNumberSum;
     }
 
     private function parseInput(): array
