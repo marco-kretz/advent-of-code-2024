@@ -16,19 +16,6 @@ class Day7 extends AbstractTask
     private const OP_MULTIPLY = '*';
     private const OP_CONCAT = '||';
 
-    public function solve(): string
-    {
-        $parsedInput = $this->parseInput();
-
-        $resultPartOne = $this->solvePartOne($parsedInput);
-        $resultPartTwo = $this->solvePartTwo($parsedInput);
-
-        return '' .
-            "The result for part one is: $resultPartOne\n" .
-            "The result for part two is: $resultPartTwo" .
-        '';
-    }
-
     /**
      * --- Part One ---
      */
@@ -41,23 +28,11 @@ class Day7 extends AbstractTask
             $operatorCount = count($operands) - 1;
 
             // Create all combinations of operands
-            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY], $operatorCount, []) as $operatorComb) {
-                // Create equation container
-                $equation = array_fill(0, 2 * count($operands) - 1, null);
-
-                // Fill equation container
-                for ($i = 0; $i < count($equation); $i++) {
-                    if ($i % 2 === 0) {
-                        $equation[$i] = $operands[$i / 2];
-                    } else {
-                        $equation[$i] = $operatorComb[$i / 2];
-                    }
-                }
-
+            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY], $operatorCount, []) as $operators) {
                 // Test equation
-                if ($this->evaluate($equation, $result)) {
+                if ($this->evaluate($operands, $operators, $result)) {
                     $totalResult += $result;
-                    continue 2;
+                    break;
                 }
             }
         }
@@ -77,21 +52,9 @@ class Day7 extends AbstractTask
             $operatorCount = count($operands) - 1;
 
             // Create all combinations of operands
-            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY, self::OP_CONCAT], $operatorCount, []) as $operatorComb) {
-                // Create equation container
-                $equation = array_fill(0, 2 * count($operands) - 1, null);
-
-                // Fill equation container
-                for ($i = 0; $i < count($equation); $i++) {
-                    if ($i % 2 === 0) {
-                        $equation[$i] = $operands[$i / 2];
-                    } else {
-                        $equation[$i] = $operatorComb[$i / 2];
-                    }
-                }
-
+            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY, self::OP_CONCAT], $operatorCount, []) as $operators) {
                 // Test equation
-                if ($this->evaluate($equation, $result)) {
+                if ($this->evaluate($operands, $operators, $result)) {
                     $totalResult += $result;
                     continue 2;
                 }
@@ -125,7 +88,7 @@ class Day7 extends AbstractTask
         return $result;
     }
 
-    private function combine(array $elements, int $length, array $current)
+    private function combine(array $elements, int $length, array $current): Iterator
     {
         if (count($current) === $length) {
             yield $current;
@@ -144,25 +107,18 @@ class Day7 extends AbstractTask
      * Test if a fiven equation matches the given result.
      * Operators are always evaluated left-to-right, not according to precedence rules.
      */
-    private function evaluate(array $equation, int $expectedResult): bool
+    private function evaluate(array $operands, array $operators, int $expectedResult): bool
     {
-        $actualResult = null;
-        $eqSize = count($equation);
-        for ($i = 0; $i < $eqSize; $i++) {
-            if ($i % 2 === 0) {
-                // It's an operand (number)
-                if ($i === 0) {
-                    $actualResult = $equation[$i];
-                } else {
-                    $actualResult = match ($equation[$i - 1]) {
-                        self::OP_ADD => $actualResult + $equation[$i],
-                        self::OP_MULTIPLY => $actualResult * $equation[$i],
-                        self::OP_CONCAT => (int) ($actualResult . $equation[$i])
-                    };
-                }
-            }
+        $result = $operands[0];
+        foreach ($operators as $i => $operator) {
+            $nextOperand = $operands[$i + 1];
+            $result = match ($operator) {
+                self::OP_ADD => $result + $nextOperand,
+                self::OP_MULTIPLY => $result * $nextOperand,
+                self::OP_CONCAT => (int) ("$result$nextOperand"),
+            };
         }
 
-        return $actualResult === $expectedResult;
+        return $result === $expectedResult;
     }
 }
