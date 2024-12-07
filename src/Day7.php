@@ -2,6 +2,7 @@
 
 namespace MarcoKretz\AdventOfCode2024;
 
+use Iterator;
 use RuntimeException;
 
 /**
@@ -13,6 +14,7 @@ class Day7 extends AbstractTask
 {
     private const OP_ADD = '+';
     private const OP_MULTIPLY = '*';
+    private const OP_CONCAT = '||';
 
     public function solve(): string
     {
@@ -38,31 +40,24 @@ class Day7 extends AbstractTask
             $result = $line['r'];
             $operatorCount = count($operands) - 1;
 
-            // Count possible combinations and prefill empty array structure
-            $possibleCombinations = pow(2, $operatorCount);
-            $combinations = array_fill(0, $possibleCombinations, []);
-
             // Create all combinations of operands
-            $opCombinations = $this->createPossibleCombinations([self::OP_ADD, self::OP_MULTIPLY], $operatorCount);
+            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY], $operatorCount, []) as $operatorComb) {
+                // Create equation container
+                $equation = array_fill(0, 2 * count($operands) - 1, null);
 
-            // Combine the operands with the operators
-            $combinationLength = 2 * count($operands) - 1;
-            for ($i = 0; $i < $combinationLength; $i++) {
-                for ($j = 0; $j < count($combinations); $j++) {
+                // Fill equation container
+                for ($i = 0; $i < count($equation); $i++) {
                     if ($i % 2 === 0) {
-                        // Insert operand
-                        $combinations[$j][$i] = $operands[$i / 2];
+                        $equation[$i] = $operands[$i / 2];
                     } else {
-                        // Insert operator
-                        $combinations[$j][$i] = $opCombinations[$j][$i / 2];
+                        $equation[$i] = $operatorComb[$i / 2];
                     }
                 }
-            }
 
-            foreach ($combinations as $combination) {
-                if ($this->evaluate($combination, $result)) {
+                // Test equation
+                if ($this->evaluate($equation, $result)) {
                     $totalResult += $result;
-                    break;
+                    continue 2;
                 }
             }
         }
@@ -73,9 +68,37 @@ class Day7 extends AbstractTask
     /**
      * --- Part Two ---
      */
-    public function solvePartTwo(array $map): string
+    public function solvePartTwo(array $parsedInput): string
     {
-        return '';
+        $totalResult = 0;
+        foreach ($parsedInput as $line) {
+            $operands = $line['e'];
+            $result = $line['r'];
+            $operatorCount = count($operands) - 1;
+
+            // Create all combinations of operands
+            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY, self::OP_CONCAT], $operatorCount, []) as $operatorComb) {
+                // Create equation container
+                $equation = array_fill(0, 2 * count($operands) - 1, null);
+
+                // Fill equation container
+                for ($i = 0; $i < count($equation); $i++) {
+                    if ($i % 2 === 0) {
+                        $equation[$i] = $operands[$i / 2];
+                    } else {
+                        $equation[$i] = $operatorComb[$i / 2];
+                    }
+                }
+
+                // Test equation
+                if ($this->evaluate($equation, $result)) {
+                    $totalResult += $result;
+                    continue 2;
+                }
+            }
+        }
+
+        return (string) $totalResult;
     }
 
     private function parseInput(): array
@@ -102,29 +125,16 @@ class Day7 extends AbstractTask
         return $result;
     }
 
-    private function createPossibleCombinations(array $elements, int $length): array
-    {
-        if ($length < 1 || empty($elements)) {
-            return [];
-        }
-
-        $result = [];
-        $this->combine($elements, $length, [], $result);
-
-        return $result;
-    }
-
-    private function combine(array $elements, int $length, array $current, array &$result): void
+    private function combine(array $elements, int $length, array $current)
     {
         if (count($current) === $length) {
-            $result[] = $current;
-
+            yield $current;
             return;
         }
 
         for ($i = 0; $i < count($elements); $i++) {
             $current[] = $elements[$i];
-            $this->combine($elements, $length, $current, $result);
+            yield from $this->combine($elements, $length, $current);
             array_pop($current);
         }
     }
@@ -136,16 +146,17 @@ class Day7 extends AbstractTask
     private function evaluate(array $equation, int $expectedResult): bool
     {
         $actualResult = null;
-        foreach ($equation as $index => $element) {
-            if ($index % 2 === 0) {
+        $eqSize = count($equation);
+        for ($i = 0; $i < $eqSize; $i++) {
+            if ($i % 2 === 0) {
                 // It's an operand (number)
-                if ($index === 0) {
-                    $actualResult = $element;
+                if ($i === 0) {
+                    $actualResult = $equation[$i];
                 } else {
-                    $operator = $equation[$index - 1];
-                    $actualResult = match ($operator) {
-                        self::OP_ADD => $actualResult + $element,
-                        self::OP_MULTIPLY => $actualResult * $element,
+                    $actualResult = match ($equation[$i - 1]) {
+                        self::OP_ADD => $actualResult + $equation[$i],
+                        self::OP_MULTIPLY => $actualResult * $equation[$i],
+                        self::OP_CONCAT => (int) ($actualResult . $equation[$i])
                     };
                 }
             }
