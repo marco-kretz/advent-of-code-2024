@@ -2,9 +2,6 @@
 
 namespace MarcoKretz\AdventOfCode2024;
 
-use Iterator;
-use RuntimeException;
-
 /**
  * Advent of Code - Day 7: Bridge Repair
  *
@@ -23,17 +20,9 @@ class Day7 extends AbstractTask
     {
         $totalResult = 0;
         foreach ($parsedInput as $line) {
-            $operands = $line['e'];
-            $result = $line['r'];
-            $operatorCount = count($operands) - 1;
-
-            // Create all combinations of operands
-            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY], $operatorCount) as $operators) {
-                // Test equation
-                if ($this->evaluate($operands, $operators, $result)) {
-                    $totalResult += $result;
-                    break;
-                }
+            [$result, $operands] = $line;
+            if ($this->evaluate($operands, [self::OP_ADD, self::OP_MULTIPLY], $result)) {
+                $totalResult += $result;
             }
         }
 
@@ -47,17 +36,9 @@ class Day7 extends AbstractTask
     {
         $totalResult = 0;
         foreach ($parsedInput as $line) {
-            $operands = $line['e'];
-            $result = $line['r'];
-            $operatorCount = count($operands) - 1;
-
-            // Create all combinations of operands
-            foreach ($this->combine([self::OP_ADD, self::OP_MULTIPLY, self::OP_CONCAT], $operatorCount) as $operators) {
-                // Test equation
-                if ($this->evaluate($operands, $operators, $result)) {
-                    $totalResult += $result;
-                    break;
-                }
+            [$result, $operands] = $line;
+            if ($this->evaluate($operands, [self::OP_ADD, self::OP_MULTIPLY, self::OP_CONCAT], $result)) {
+                $totalResult += $result;
             }
         }
 
@@ -69,46 +50,50 @@ class Day7 extends AbstractTask
         $result = [];
         foreach (file($this->input, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
             [$res, $ops] = explode(':', $line);
-            $result[] = [
-                'e' => array_map('intval', explode(' ', trim($ops))),
-                'r' => (int) $res,
-            ];
+            $result[] = [(int) $res, array_map('intval', explode(' ', trim($ops)))];
         }
 
         return $result;
     }
 
-    private function combine(array $elements, int $length, array $current = []): Iterator
-    {
-        if (count($current) === $length) {
-            yield $current;
-            return;
-        }
-
-        $elementCount = count($elements);
-        foreach ($elements as $element) {
-            $current[] = $element;
-            yield from $this->combine($elements, $length, $current);
-            array_pop($current);
-        }
-    }
-
     /**
      * Test if a fiven equation matches the given result.
      * Operators are always evaluated left-to-right, not according to precedence rules.
+     *
+     * Edit: Switched to using DSF after seeing how slow the bruteforce method was :D
      */
     private function evaluate(array $operands, array $operators, int $expectedResult): bool
     {
-        $result = $operands[0];
-        foreach ($operators as $i => $operator) {
-            $nextOperand = $operands[$i + 1];
-            $result = match ($operator) {
-                self::OP_ADD => $result + $nextOperand,
-                self::OP_MULTIPLY => $result * $nextOperand,
-                self::OP_CONCAT => (int) ("$result$nextOperand"),
-            };
-        }
+        $search = null;
+        $search = function (int $acc, int $index) use ($operands, $operators, &$search): bool {
+            if ($index === 0) {
+                return $acc === $operands[0];
+            }
 
-        return $result === $expectedResult;
+            $number = $operands[$index];
+            $validOps = array_filter($operators, function ($operator) use ($acc, $number): bool {
+                return (
+                    !($operator === self::OP_ADD && $acc < $number) &&
+                    !($operator === self::OP_MULTIPLY && ($number === 0 || $acc % $number != 0)) &&
+                    !($operator === self::OP_CONCAT && ($acc === $number || !str_ends_with($acc, $number)))
+                );
+            });
+
+            foreach ($validOps as $validOp) {
+                $result = match ($validOp) {
+                    self::OP_ADD => $acc - $number,
+                    self::OP_MULTIPLY => $acc / $number,
+                    self::OP_CONCAT => substr($acc, 0, -strlen((string) $number)),
+                };
+
+                if ($search($result, $index - 1)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        return $search($expectedResult, count($operands) - 1);
     }
 }
