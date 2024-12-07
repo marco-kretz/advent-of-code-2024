@@ -42,6 +42,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
         // Stop timer and print result
         $event = $stopwatch->stop('task');
         $output->writeln("\nFinished in: " . ($event->getDuration() / 1000) . ' seconds.');
+        $output->writeln("Peak memory usage: " . (memory_get_peak_usage() / 1000 / 1000) . " mb");
 
         return Command::SUCCESS;
     })
