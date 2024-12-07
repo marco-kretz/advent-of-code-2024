@@ -79,7 +79,7 @@ class Day3 extends AbstractTask
         return (string) $sum;
     }
 
-    private function parseInput(): array
+    public function parseInput(): array
     {
         // Read whole file as string
         $content = file_get_contents($this->input);

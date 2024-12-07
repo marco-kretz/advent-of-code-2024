@@ -133,7 +133,7 @@ class Day6 extends AbstractTask
         return (string) $successfulLooperCount;
     }
 
-    private function parseInput(): array
+    public function parseInput(): array
     {
         // Read whole file as string
         $handle = fopen($this->input, 'r');

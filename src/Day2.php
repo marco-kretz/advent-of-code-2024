@@ -60,7 +60,7 @@ class Day2 extends AbstractTask
         return (string) ($totalReports - $unsafeCount);
     }
 
-    private function parseInput(): array
+    public function parseInput(): array
     {
         $handle = fopen($this->input, 'r');
         if (!$handle) {
