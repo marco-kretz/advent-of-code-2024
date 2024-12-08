@@ -16,6 +16,11 @@ I don't try to write the most efficient code, but the most readable so that some
 $ git clone https://github.com/marco-kretz/advent-of-code-2024.git
 $ cd advent-of-code-2024
 $ composer install
+```
+
+Put input into `inputs/` as txt files `day1.txt, day2.txt, ...`
+
+```
 $ php bin/solve day1
 ```
 
